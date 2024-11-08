@@ -8,13 +8,13 @@ const port = process.env.PORT || 3000;
 app.use(cors());  // This enables CORS for all domains. You can specify an origin if needed
 
 // Secret key for AES encryption (make sure to use a secure key in production)
-const SECRET_KEY = 'justmadeit';
+const SECRET_KEY = crypto.createHash('sha256').update('justmadeit').digest();  // 32-byte key
 const ALGORITHM = 'aes-256-cbc';
 
 // Function to encrypt HTML content using AES encryption
 function aesEncrypt(text) {
     const iv = crypto.randomBytes(16);  // Generate a random initialization vector (IV)
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv);
+    const cipher = crypto.createCipheriv(ALGORITHM, SECRET_KEY, iv);
     let encrypted = cipher.update(text, 'utf8', 'base64');
     encrypted += cipher.final('base64');
     return iv.toString('base64') + ':' + encrypted;  // Return IV and encrypted text
